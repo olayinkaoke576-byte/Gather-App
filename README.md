@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Gather App
 
 A next-generation event ticketing and social discovery platform that transforms attending events from a transaction into a connected experience.
@@ -148,3 +149,6 @@ Built with Next.js, TailwindCSS, and Framer Motion.
 ---
 
 **Status**: Production-ready MVP with mock data. Backend integration pending.
+=======
+# Gather-App
+>>>>>>> 79f44f32514534b8cf45fb84ca558ed2c9bbce3b
