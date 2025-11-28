@@ -2,7 +2,9 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Heart, MessageCircle, X, Send, Sparkles } from 'lucide-react';
+import { Users, Heart, MessageCircle, X, Send, Sparkles, Phone, Video, Mic } from 'lucide-react';
+import { CallModal } from './CallModal';
+import { VoiceNoteRecorder } from './VoiceNoteRecorder';
 
 interface Attendee {
     id: string;
@@ -23,6 +25,9 @@ export const FriendMatcher = () => {
     const [selectedUser, setSelectedUser] = useState<Attendee | null>(null);
     const [message, setMessage] = useState('');
     const [sentRequests, setSentRequests] = useState<Set<string>>(new Set());
+    const [isCallModalOpen, setIsCallModalOpen] = useState(false);
+    const [callType, setCallType] = useState<'audio' | 'video'>('audio');
+    const [isRecordingVoice, setIsRecordingVoice] = useState(false);
 
     const sendFriendRequest = (userId: string) => {
         setSentRequests(new Set([...sentRequests, userId]));
@@ -35,6 +40,16 @@ export const FriendMatcher = () => {
             setMessage('');
             setSelectedUser(null);
         }
+    };
+
+    const startCall = (type: 'audio' | 'video') => {
+        setCallType(type);
+        setIsCallModalOpen(true);
+    };
+
+    const handleVoiceNoteSend = (audioBlob: Blob, duration: number) => {
+        alert(`Voice note sent to ${selectedUser?.name} (${duration}s)`);
+        setIsRecordingVoice(false);
     };
 
     return (
@@ -143,24 +158,71 @@ export const FriendMatcher = () => {
                                 <X className="w-5 h-5 text-zinc-600 dark:text-zinc-400" />
                             </button>
                         </div>
-                        <div className="p-6">
-                            <textarea
-                                value={message}
-                                onChange={(e) => setMessage(e.target.value)}
-                                placeholder="Hey! I saw we're both going to the event. Want to meet up?"
-                                className="w-full h-32 p-4 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-2xl focus:ring-2 focus:ring-purple-500 outline-none transition-all resize-none text-zinc-700 dark:text-zinc-300"
-                            />
-                            <button
-                                onClick={sendMessage}
-                                disabled={!message.trim()}
-                                className="w-full mt-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold hover:opacity-90 transition-opacity flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                <Send className="w-5 h-5" />
-                                <span>Send Message</span>
-                            </button>
+                        <div className="p-6 space-y-4">
+                            {/* Call Buttons */}
+                            <div className="flex space-x-2">
+                                <button
+                                    onClick={() => startCall('audio')}
+                                    className="flex-1 py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold transition-colors flex items-center justify-center space-x-2"
+                                >
+                                    <Phone className="w-5 h-5" />
+                                    <span>Audio Call</span>
+                                </button>
+                                <button
+                                    onClick={() => startCall('video')}
+                                    className="flex-1 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-bold transition-colors flex items-center justify-center space-x-2"
+                                >
+                                    <Video className="w-5 h-5" />
+                                    <span>Video Call</span>
+                                </button>
+                            </div>
+
+                            {/* Voice Note Recorder or Text Input */}
+                            {isRecordingVoice ? (
+                                <VoiceNoteRecorder
+                                    onSend={handleVoiceNoteSend}
+                                    onCancel={() => setIsRecordingVoice(false)}
+                                />
+                            ) : (
+                                <>
+                                    <textarea
+                                        value={message}
+                                        onChange={(e) => setMessage(e.target.value)}
+                                        placeholder="Hey! I saw we're both going to the event. Want to meet up?"
+                                        className="w-full h-32 p-4 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-2xl focus:ring-2 focus:ring-purple-500 outline-none transition-all resize-none text-zinc-700 dark:text-zinc-300"
+                                    />
+                                    <div className="flex space-x-2">
+                                        <button
+                                            onClick={() => setIsRecordingVoice(true)}
+                                            className="px-4 py-3 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-xl font-bold hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors flex items-center space-x-2"
+                                        >
+                                            <Mic className="w-5 h-5" />
+                                            <span>Voice Note</span>
+                                        </button>
+                                        <button
+                                            onClick={sendMessage}
+                                            disabled={!message.trim()}
+                                            className="flex-1 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold hover:opacity-90 transition-opacity flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            <Send className="w-5 h-5" />
+                                            <span>Send Message</span>
+                                        </button>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </motion.div>
                 </motion.div>
+            )}
+
+            {/* Call Modal */}
+            {selectedUser && (
+                <CallModal
+                    isOpen={isCallModalOpen}
+                    onClose={() => setIsCallModalOpen(false)}
+                    recipientName={selectedUser.name}
+                    callType={callType}
+                />
             )}
         </div>
     );
