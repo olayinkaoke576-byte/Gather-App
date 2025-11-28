@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Users, Heart, MessageCircle, X, Send, Sparkles, Phone, Video, Mic } from 'lucide-react';
 import { CallModal } from './CallModal';
 import { VoiceNoteRecorder } from './VoiceNoteRecorder';
+import { IcebreakerSuggestions } from './IcebreakerSuggestions';
 
 interface Attendee {
     id: string;
@@ -176,6 +177,15 @@ export const FriendMatcher = () => {
                                     <span>Video Call</span>
                                 </button>
                             </div>
+
+                            {/* Icebreaker Suggestions */}
+                            {selectedUser && (
+                                <IcebreakerSuggestions
+                                    userName={selectedUser.name}
+                                    sharedInterests={selectedUser.interests}
+                                    matchScore={selectedUser.matchScore}
+                                />
+                            )}
 
                             {/* Voice Note Recorder or Text Input */}
                             {isRecordingVoice ? (
